@@ -4,7 +4,7 @@ import { SignedXml } from 'xml-crypto';
 import { DOMParser, XMLSerializer } from 'xmldom';
 
 class WSSecurityNFe implements ISecurity {
-  // foi necessario implementar um novo protoco de comunicacao, para enviar no estilo padrao nfe.
+  // foi necessario implementar um novo protoco de comunicacao, para enviar no estilo "padrao nfe".
   // usado o link abaixo como fonte de consulta:
   // https://github.com/lealhugui/node-dfe/blob/master/src/factory/signature.ts
 
@@ -43,15 +43,15 @@ class WSSecurityNFe implements ISecurity {
       };
     };
 
-    const sig = new SignedXml();
-    const tag = 'Mensagem';
+    const sign = new SignedXml();
+    const tag = 'Mensagem'; // Esta Fixo a tag Mensagem para Assinatura
     const transforms = [
       'http://www.w3.org/2000/09/xmldsig#enveloped-signature',
       'http://www.w3.org/TR/2001/REC-xml-c14n-20010315',
     ];
 
-    sig.addReference(
-      '*', // `//*[local-name(.)='${tag}']`,
+    sign.addReference(
+      '*', // `//*[local-name(.)='${tag}']`,  //Não segue o padrao NFe. Na tag a ser assinada nao deve ter Id.
       transforms,
       '',
       '',
@@ -59,33 +59,29 @@ class WSSecurityNFe implements ISecurity {
       '',
       true,
     );
-    sig.signingKey = this.privateKey;
-    sig.canonicalizationAlgorithm =
+    sign.signingKey = this.privateKey;
+    sign.canonicalizationAlgorithm =
       'http://www.w3.org/TR/2001/REC-xml-c14n-20010315';
-    sig.keyInfoProvider = infoProvider(this.publicKey);
+    sign.keyInfoProvider = infoProvider(this.publicKey);
 
+    // TODO: nao deveria de ter este namespace
     const xmlNode = this.getSoapMessage(xml, 'pXml').replace(
       ' xmlns="http://webservices.sef.sc.gov.br/wsDfeSiv/"',
       '',
     );
-    // console.log('xNode', xmlNode);
 
-    sig.computeSignature(xmlNode, {
+    sign.computeSignature(xmlNode, {
       location: {
         reference: `//*[local-name(.)='${tag}']`,
         action: 'after',
       },
     });
 
-    const sign = sig.getSignedXml();
-    // console.log('sign', sign);
-    // console.log('xml', xml);
-
+    const signedXml = sign.getSignedXml();
     const envelope = xml.replace(
       `<pXml>${xmlNode}</pXml>`,
-      `<pXml><![CDATA[${sign}]]></pXml>`,
+      `<pXml><![CDATA[${signedXml}]]></pXml>`,
     );
-    // console.log(envelope);
     return envelope;
   }
 }

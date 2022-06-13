@@ -7,7 +7,7 @@ import jsonData from './data/manutencao.json';
 
 const url = 'http://webservices.sef.sc.gov.br/wsDfeSiv/BlocoX.asmx?wsdl';
 const cancelReason =
-  'Cancelamento de arquivo devido a alteração contratual da atividade econômica em 07/01/2022 cuja obrigatoriedade alterou para esta data';
+  'Cancelamento de arquivo devido a alteração contratual da atividade econômica em 30/09/2020 cuja obrigatoriedade de envio alterou para 01/02/2022';
 
 async function cancellation(receipt: string) {
   try {
