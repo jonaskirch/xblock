@@ -82,6 +82,7 @@ class WSSecurityNFe implements ISecurity {
       `<pXml>${xmlNode}</pXml>`,
       `<pXml><![CDATA[${signedXml}]]></pXml>`,
     );
+    // console.log(envelope);
     return envelope;
   }
 }
